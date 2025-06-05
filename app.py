@@ -8,7 +8,7 @@ from weasyprint import HTML
 from zipfile import ZipFile
 import json
 
-TEMPLATE_FILE = "template_stats_structured_grouped_final.html"
+TEMPLATE_FILE = "template.html"
 OUTPUT_DIR = "downloads"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
