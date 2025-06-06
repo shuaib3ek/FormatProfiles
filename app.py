@@ -15,7 +15,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 st.set_page_config(page_title="Trainer Profile Formatter", layout="centered")
 st.title("📄 AI-Powered Trainer Profile Formatter")
 
-openai_key = st.text_input("🔑 Enter your OpenAI API Key", type="password")
+openai_api_key = st.secrets["api_keys"]["openai_api_key"]
 
 uploaded_files = st.file_uploader(
     "Upload DOCX or PDF profiles",
@@ -91,7 +91,7 @@ def generate_pdf(profile_data, output_path):
     html = template.render(**profile_data)
     HTML(string=html, base_url=".").write_pdf(output_path)
 
-if uploaded_files and openai_key:
+if uploaded_files :
     zip_path = os.path.join(OUTPUT_DIR, "Formatted_Profiles.zip")
     with ZipFile(zip_path, 'w') as zipf:
         for file in uploaded_files:
@@ -116,4 +116,4 @@ if uploaded_files and openai_key:
     with open(zip_path, "rb") as f:
         st.download_button("📥 Download All PDFs", f, file_name="Formatted_Profiles.zip", mime="application/zip")
 elif uploaded_files:
-    st.warning("🔐 Please enter your OpenAI API key.")
+    
