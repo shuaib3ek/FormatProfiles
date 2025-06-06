@@ -7,15 +7,17 @@ from jinja2 import Template
 from weasyprint import HTML
 from zipfile import ZipFile
 import json
+import re
 
-TEMPLATE_FILE = "template.html"
+TEMPLATE_FILE = "template-2.html"
 OUTPUT_DIR = "downloads"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 st.set_page_config(page_title="Trainer Profile Formatter", layout="centered")
 st.title("📄 AI-Powered Trainer Profile Formatter")
 
-openai_api_key = st.secrets["api_keys"]["openai_api_key"]
+# 🔒 Secure API key via Streamlit secrets
+openai.api_key = st.secrets["openai"]["api_key"]
 
 uploaded_files = st.file_uploader(
     "Upload DOCX or PDF profiles",
@@ -37,9 +39,7 @@ def extract_text(file, extension):
         return text
     return ""
 
-def extract_profile_data(text, key):
-    openai.api_key = key
-
+def extract_profile_data(text):
     prompt = f"""You are an expert AI assistant that extracts technical training profile data.
 
 Given the raw resume text, return a JSON object with the following fields:
@@ -70,20 +70,12 @@ Here is the text:
 
     content = response.choices[0].message.content.strip()
 
-    if content.startswith("```json"):
-        content = content.split("```json")[-1].strip()
-    elif content.startswith("```"):
-        content = content.split("```")[-1].strip()
-
-    
-    import re
     try:
         json_str = re.search(r"{.*}", content, re.DOTALL).group()
         return json.loads(json_str)
     except Exception as e:
         print("\n⚠️ RAW OpenAI Response:\n", content)
         raise ValueError(f"❌ Failed to parse JSON: {e}")
-    
 
 def generate_pdf(profile_data, output_path):
     with open(TEMPLATE_FILE) as f:
@@ -91,7 +83,7 @@ def generate_pdf(profile_data, output_path):
     html = template.render(**profile_data)
     HTML(string=html, base_url=".").write_pdf(output_path)
 
-if uploaded_files :
+if uploaded_files:
     zip_path = os.path.join(OUTPUT_DIR, "Formatted_Profiles.zip")
     with ZipFile(zip_path, 'w') as zipf:
         for file in uploaded_files:
@@ -104,7 +96,7 @@ if uploaded_files :
 
             try:
                 with st.spinner(f"Processing: {file.name}"):
-                    data = extract_profile_data(raw_text, openai_key)
+                    data = extract_profile_data(raw_text)
                     filename = data.get("Full_Name", "Trainer_Profile").replace(" ", "_") + ".pdf"
                     out_path = os.path.join(OUTPUT_DIR, filename)
                     generate_pdf(data, out_path)
@@ -115,5 +107,3 @@ if uploaded_files :
 
     with open(zip_path, "rb") as f:
         st.download_button("📥 Download All PDFs", f, file_name="Formatted_Profiles.zip", mime="application/zip")
-elif uploaded_files:
-    
