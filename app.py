@@ -15,7 +15,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 st.set_page_config(page_title="Trainer Profile Formatter", layout="centered")
 st.title("📄 AI-Powered Trainer Profile Formatter")
 
-openai_key = st.text_input("🔑 Enter your OpenAI API Key", type="password")
+## openai_key = st.text_input("🔑 Enter your OpenAI API Key", type="password")
+import streamlit as st
+openai.api_key = st.secrets["openai"]["api_key"]
 
 uploaded_files = st.file_uploader(
     "Upload DOCX or PDF profiles",
