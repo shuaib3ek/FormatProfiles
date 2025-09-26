@@ -18,6 +18,7 @@ st.title("📄 AI-Powered Trainer Profile Formatter")
 ## openai_key = st.text_input("🔑 Enter your OpenAI API Key", type="password")
 import streamlit as st
 openai.api_key = st.secrets["openai"]["api_key"]
+openai_key = openai.api_key
 
 uploaded_files = st.file_uploader(
     "Upload DOCX or PDF profiles",
